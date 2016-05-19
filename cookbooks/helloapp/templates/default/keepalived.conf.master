@@ -1,0 +1,27 @@
+global_defs {
+ # Keepalived process identifier
+ lvs_id haproxy_KA
+}
+ 
+# Script used to check if HAProxy is running
+vrrp_script check_haproxy {
+ script "killall -0 haproxy"
+ interval 2
+ weight 2
+}
+ 
+# Virtual interface
+vrrp_instance VIP_01 {
+ state MASTER
+ interface <%= node["helloapp"]["interface"] %>
+ virtual_router_id 7
+ priority 101
+ 
+ virtual_ipaddress {
+ <%= node["helloapp"]["virtualIP"] %>
+ }
+ 
+ track_script {
+ check_haproxy
+ }
+}
